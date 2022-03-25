@@ -45,6 +45,7 @@ class captcha_solver():
                 print("Not detected");
         
             res = np.array(model.predict(img[np.newaxis, :, :, np.newaxis])) #np.newaxis=1 
+            # res = np.array(model.predict(img))
             #added this bcoz x_train 970*50*200*1
             #returns array of size 1*5*36 
             result = np.reshape(res, (5, 26)) #reshape the array

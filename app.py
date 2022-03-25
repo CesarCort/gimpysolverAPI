@@ -27,17 +27,36 @@ from keras.models import model_from_json
 # load keras model
 def model_():
     try:
-        modelPath = '/model/captchaSolver.h5'
+        jsonPath = '/model/model.json'
+        weightsPath = '/model/model.h5'
+        Path = '/model/captchaSolver.h5'
+        
         try:
             with resources.open_binary('gimpysolver', modelPath) as model:
                 ml = io.BytesIO(model.read())
                 captcha_model = keras.models.load_model()
         except:
             globalPath = get_path()
-            fullPath = globalPath + modelPath
+            
+            full_weightPath = globalPath + weightsPath
+            full_jsonPath = globalPath + jsonPath
+            fullPath = globalPath + Path
+            
+         #    json_file = open(jsonPath,'r')
+         #    loaded_model_json = json_file.read()
+         #    json_file.close()
+         #    loaded_model = model_from_json(loaded_model_json)
+        	# #load weights into new model
+         #    loaded_model.load_weights(full_weightPath)
+         #    print("Loaded Model from disk")
+        
+        	# #compile and evaluate loaded model
+         #    loaded_model.compile(loss='categorical_crossentropy',optimizer='adam',metrics=['accuracy'])
+            
             
             captcha_model = keras.models.load_model(fullPath)
         return captcha_model
+        # return loaded_model
     except Exception as err:
         print('Error while try to read model CaptchaSolver',err)
         return err
