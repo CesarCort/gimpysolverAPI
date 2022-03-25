@@ -8,7 +8,6 @@
 import keras
 import os.path
 import cv2
-import PIL
 import numpy as np
 from . import MDL
 

@@ -91,6 +91,9 @@ def predict():
     else:
         return "No Content-Type Support."
     
+@app.route("/",methods=['GET'])
+def home():
+    return "Hola"
 
 if __name__=="__main__":
     app.run(debug=False)
