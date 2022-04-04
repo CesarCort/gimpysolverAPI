@@ -24,7 +24,7 @@ class captcha_solver():
         self.imgArray = imgArray
         
         self.wrongDimension = False
-        self.character = '4yp9nfgawm76edhv5b32r8kcxt' # letter target from model
+        self.character = 'n78rfke23aobd4gp6w5yxcmh' # letter target from model
         self.model = MDL._load_model() # load Captcha Model resolve
         
                     
@@ -47,7 +47,7 @@ class captcha_solver():
             # res = np.array(model.predict(img))
             #added this bcoz x_train 970*50*200*1
             #returns array of size 1*5*36 
-            result = np.reshape(res, (5, 26)) #reshape the array
+            result = np.reshape(res, (5, 24)) #reshape the array
             k_ind = []
             probs = []
             for i in result:

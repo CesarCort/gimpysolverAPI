@@ -22,14 +22,20 @@ import json
 
 # load model
 from keras.models import model_from_json
+import logging
 
+logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+
+
+#create the app
+app = Flask(__name__)
 
 # load keras model
 def model_():
     try:
         jsonPath = '/model/model.json'
         weightsPath = '/model/model.h5'
-        Path = '/model/captchaSolver.h5'
+        Path = '/model/captchaSolverV2_1.h5'
         
         try:
             with resources.open_binary('gimpysolver', modelPath) as model:
@@ -55,41 +61,52 @@ def model_():
             
             
             captcha_model = keras.models.load_model(fullPath)
+            app.logger.info('Model load successfully')
         return captcha_model
         # return loaded_model
     except Exception as err:
         print('Error while try to read model CaptchaSolver',err)
+        app.logger.error('Error try load model: {}'.format(err))
         return err
 
 # declare global model
 global model
 model = model_()
 
-#create the app
-app = Flask(__name__)
+@app.errorhandler(500)
+def internal_error(error):
+    app.logging.error('Internal error: {}'.format(error))
+    return 'Internal Error {}'.format(error), 500
 
 @app.route("/predict/",methods=['POST'])
 def predict():
     content_type = request.headers.get('Content-Type')
-    print('json')
-    if content_type == 'application/json':
-        content = request.get_json(force=True)
-        
-        # Json to deserialization
-        decodeimgArray = json.loads(content)
-        # to array
-        imgArray = np.asarray(decodeimgArray["array"])
+    print('POST request received')
+    app.logger.info('post request received')
+    try: 
+        if content_type == 'application/json':
+            content = request.get_json(force=True)
             
-        # create object captcha from array
-        myCaptcha = captchaSolverRPA.captcha_solver(imgArray,model)
-        # predict captcha
-        myCaptchaSolved = myCaptcha.predict()
+            # Json to deserialization
+            decodeimgArray = json.loads(content)
+            # to array
+            imgArray = np.asarray(decodeimgArray["array"])
+                
+            # create object captcha from array
+            myCaptcha = captchaSolverRPA.captcha_solver(imgArray,model)
+            # predict captcha
+            myCaptchaSolved = myCaptcha.predict()
+            
+            # build response r
+            response = {'predict':myCaptchaSolved}
+            app.logger.info('prediction successful: {}'.format(response))
+            return response
+        else:
+            app.logger.warning('No Content-Type Support.')
+            return "No Content-Type Support."
+    except Exception as err:
+        abort(500,description = err)
         
-        # build response r
-        response = {'predict':myCaptchaSolved}
-        return response
-    else:
-        return "No Content-Type Support."
     
 @app.route("/",methods=['GET'])
 def home():
