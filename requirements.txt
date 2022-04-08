@@ -4,3 +4,4 @@ tensorflow==2.8.0
 keras==2.8.0
 opencv-python==4.5.1.48
 load
+waitress==2.1.1

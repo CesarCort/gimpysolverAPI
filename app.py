@@ -5,7 +5,8 @@ Created on Thu Mar 24 17:54:50 2022
 @author: User
 """
 
-from flask import Flask,request
+from flask import Flask,request,abort
+from waitress import serve
 import tensorflow as tf
 #from scipy.misc import imsave, imread, imresize
 import numpy as np
@@ -19,6 +20,7 @@ from load import *
 # from . import MDL
 from utils import captchaSolverRPA
 import json
+import inspect
 
 # load model
 from keras.models import model_from_json
@@ -30,12 +32,17 @@ logging.basicConfig(filename='record.log', level=logging.DEBUG, format=f'%(ascti
 #create the app
 app = Flask(__name__)
 
+
+def get_path():
+    globalPath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+    return globalPath
+
 # load keras model
 def model_():
     try:
         jsonPath = '/model/model.json'
         weightsPath = '/model/model.h5'
-        Path = '/model/captchaSolverV2_1.h5'
+        Path = 'utils/model/captchaSolverV2_1.h5'
         
         try:
             with resources.open_binary('gimpysolver', modelPath) as model:
@@ -44,9 +51,10 @@ def model_():
         except:
             globalPath = get_path()
             
-            full_weightPath = globalPath + weightsPath
-            full_jsonPath = globalPath + jsonPath
-            fullPath = globalPath + Path
+            # full_weightPath = globalPath + weightsPath
+            # full_jsonPath = globalPath + jsonPath
+            fullPath =  Path
+            # fullPath = fullPath.replace("\\","/")
             
          #    json_file = open(jsonPath,'r')
          #    loaded_model_json = json_file.read()
@@ -73,9 +81,11 @@ def model_():
 global model
 model = model_()
 
+myCaptcha = captchaSolverRPA.captcha_solver('',model)
+
 @app.errorhandler(500)
 def internal_error(error):
-    app.logging.error('Internal error: {}'.format(error))
+    app.logger.error('Internal error: {}'.format(error))
     return 'Internal Error {}'.format(error), 500
 
 @app.route("/predict/",methods=['POST'])
@@ -87,13 +97,13 @@ def predict():
         if content_type == 'application/json':
             content = request.get_json(force=True)
             
-            # Json to deserialization
+            # Json to deserializatio
             decodeimgArray = json.loads(content)
             # to array
             imgArray = np.asarray(decodeimgArray["array"])
                 
             # create object captcha from array
-            myCaptcha = captchaSolverRPA.captcha_solver(imgArray,model)
+            myCaptcha.imgArray = imgArray
             # predict captcha
             myCaptchaSolved = myCaptcha.predict()
             
@@ -113,4 +123,5 @@ def home():
     return "Hola"
 
 if __name__=="__main__":
-    app.run(debug=False)
+    # app.run(debug=False)
+     serve(app, host="0.0.0.0", port=8050)

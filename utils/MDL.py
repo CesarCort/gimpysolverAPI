@@ -17,7 +17,7 @@ def get_path():
 
 def _load_model():
     try:
-        modelPath = '/model/captchaSolverV2.h5'
+        modelPath = '/model/captchaSolverV2_1.h5'
         try:
             with resources.open_binary('gimpysolver', modelPath) as model:
                 ml = io.BytesIO(model.read())

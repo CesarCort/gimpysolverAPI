@@ -24,7 +24,7 @@ class captcha_solver():
         self.imgArray = imgArray
         
         self.wrongDimension = False
-        self.character = 'n78rfke23aobd4gp6w5yxcmh' # letter target from model
+        self.character = '3gh82crxkopbyawef47m5n6d' # letter target from model
         self.model = MDL._load_model() # load Captcha Model resolve
         
                     
